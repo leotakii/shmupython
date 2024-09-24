@@ -92,7 +92,6 @@ def main():
                     # Calculate random x and y based on the angle and radius
                     spawn_x = center_x + radius * math.cos(angle)
                     spawn_y = center_y + radius * math.sin(angle)
-                    #enemies.append(CircularEnemy(spawn_x,spawn_y,radius,0.09, enemy_img,oscillation_amplitude))
                     enemies.append(CircularEnemy(spawn_x, spawn_y, radius, 0.09, enemy_img))
             elif enemy_wave_type == 1:
                 enemies = [Enemy(enemy_img) for _ in range(number_enemies)]
@@ -102,24 +101,9 @@ def main():
                 enemies = [ZigzagEnemy(0, 0, 3, 100,enemy_img) for _ in range(number_enemies)]
             elif enemy_wave_type == 4:
                 enemies = [ChasingEnemy(0, 0, 3,enemy_img) for _ in range(number_enemies)]
-
-
-            '''
-            if enemy_wave_type == 0:
-                enemies = [RandomEnemy(0, 0, 3, enemy_img) for _ in range(number_enemies)]
-            
-            elif enemy_wave_type == 1:
-                enemies = [ChasingEnemy(0, 0, 3, enemy_img) for _ in range(number_enemies)]
-            elif enemy_wave_type == 2:
-                enemies = [Enemy(0, 0, 3, enemy_img) for _ in range(number_enemies)]
-            elif enemy_wave_type == 3:
-                enemies = [ZigzagEnemy(0, 0, 3, 100, enemy_img) for _ in range(number_enemies)]
-            '''
-
         for enemy in enemies:
-            #enemy.update(player.rect)
             if isinstance(enemy, ChasingEnemy):
-                enemy.update(player.rect)
+                enemy.update(player.x,player.y,player.radius)
             else:
                 enemy.update()
             if enemy.y >= 800:
