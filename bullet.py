@@ -4,7 +4,7 @@ class Bullet:
     def __init__(self, x, y, image):
         self.original_image = image
         self.x = x
-        self.y = y
+        self.y = y-30
         self.image = pygame.transform.scale(self.original_image, (self.original_image.get_width() / 2, self.original_image.get_height() / 2))
         self.speed = 7
         self.width = self.image.get_width()

@@ -9,6 +9,7 @@ class Enemy:
         self.y = random.randint(-20, 20)
         self.width = self.image.get_width()
         self.height = self.image.get_height()
+        self.radius = min(self.width,self.height) // 2
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.speed = speed
 

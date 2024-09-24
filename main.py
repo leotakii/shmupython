@@ -8,6 +8,7 @@ from circular_enemy import CircularEnemy
 from zigzag_enemy import ZigzagEnemy
 from random_enemy import RandomEnemy
 from chasing_enemy import ChasingEnemy
+from power_up import PowerUp
 
 # Initialize Pygame
 pygame.init()
@@ -26,21 +27,23 @@ enemy_img = pygame.image.load('C:/Users/Lenovo/PycharmProjects/navinha/Lib/sprit
 bullet_img = pygame.image.load('C:/Users/Lenovo/PycharmProjects/navinha/Lib/sprites/bullet.png')
 
 
-def check_collisions(bullets, enemies):
+def check_collisions(bullets, enemies,power_ups):
     for bullet in bullets:
         for enemy in enemies:
+
             if bullet.rect.colliderect(enemy.rect):
                 bullets.remove(bullet)
                 enemies.remove(enemy)
+                power_ups.append(PowerUp(enemy.rect.x,enemy.rect.y))
                 break
 
 def main():
     run = True
     clock = pygame.time.Clock()
     player = Player(player_img)
-    #enemies = [Enemy(enemy_img) for _ in range(5)]
     enemies = []
     bullets = []
+    power_ups = []
 
     cooldown = player.bullet_interval
     while run:
@@ -53,15 +56,53 @@ def main():
 
         keys = pygame.key.get_pressed()
         player.move(keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_DOWN], keys[pygame.K_UP])
+        check_collisions(bullets, enemies,power_ups)
 
-        check_collisions(bullets, enemies)
+        if keys[pygame.K_z] and len(bullets) < 200 and cooldown >= player.bullet_interval:
+            # Calculate bullet positions
+            left_bullet_x = player.x - 10
+            left_bullet_y = player.y
+            right_bullet_x = player.x + 10
+            right_bullet_y = player.y
 
-        if keys[pygame.K_z] and len(bullets) < 40 and cooldown >= player.bullet_interval:
-            bullets.append(Bullet(player.x, player.y, bullet_img))
-            cooldown = 0
+            # Initialize extra bullet positions
+            extra_left_bullet_x = player.x - 40
+            extra_left_bullet_y = player.y + 30
+            extra_right_bullet_x = player.x + 40
+            extra_right_bullet_y = player.y + 30
+
+            # Always add the left bullet
+            bullets.append(Bullet(left_bullet_x, left_bullet_y, bullet_img))
+
+            if player.power_up_level < 50:
+                # If power up level is less than 50, shoot only the left bullet
+                pass  # Already added the left bullet
+            elif player.power_up_level < 150:
+                # If power up level is between 50 and 150, add the right bullet
+                bullets.append(Bullet(right_bullet_x, right_bullet_y, bullet_img))
+            elif player.power_up_level < 200:
+                # If power up level is between 150 and 200, add an extra bullet on the left
+                bullets.append(Bullet(extra_left_bullet_x, extra_left_bullet_y, bullet_img))
+                bullets.append(Bullet(right_bullet_x, right_bullet_y, bullet_img))  # Add right bullet
+            else:
+                # If power up level is 200 or more, add an extra bullet on the right
+                bullets.append(Bullet(extra_left_bullet_x, extra_left_bullet_y, bullet_img))  # Extra left bullet
+                bullets.append(Bullet(right_bullet_x, right_bullet_y, bullet_img))  # Regular right bullet
+                bullets.append(Bullet(extra_right_bullet_x, extra_right_bullet_y, bullet_img))  # Extra right bullet
+
+            cooldown = 5  # Reset cooldown
+
+            cooldown = 5  # Reset cooldown
+
+            # Create bullets
+            #bullets.append(Bullet(left_bullet_x, left_bullet_y, bullet_img))
+            #bullets.append(Bullet(right_bullet_x, right_bullet_y, bullet_img))
+
+            cooldown = 5
+
         if keys[pygame.K_c]:
             player.speed = 3
-            player.bullet_interval = 5
+            player.bullet_interval = 10
         else:
             player.speed = 5
             player.bullet_interval = 10
@@ -72,6 +113,19 @@ def main():
             if bullet.y < 0:
                 bullets.remove(bullet)
             bullet.draw(window)
+        # Update power-ups
+        for power_up in power_ups[:]:
+            power_up.update()
+            if player.is_colliding(power_up.rect):
+                player.power_up_level += 10  # Increase the power-up level
+                power_ups.remove(power_up)  # Remove the power-up once collected
+                if player.power_up_level == 150:
+                    player.power_up_level = 150
+            elif power_up.rect.y > HEIGHT:  # Remove if it falls off screen
+                power_ups.remove(power_up)
+            power_up.draw(window)
+
+
 
         player.draw(window)
 
@@ -102,6 +156,11 @@ def main():
             elif enemy_wave_type == 4:
                 enemies = [ChasingEnemy(0, 0, 3,enemy_img) for _ in range(number_enemies)]
         for enemy in enemies:
+            if player.is_colliding(enemy.rect):
+                player.reset_position()
+                enemies.remove(enemy)
+                break
+
             if isinstance(enemy, ChasingEnemy):
                 enemy.update(player.x,player.y,player.radius)
             else:
