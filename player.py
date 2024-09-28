@@ -1,5 +1,4 @@
 import pygame
-import math
 
 class Player:
     def __init__(self, image):
@@ -13,6 +12,8 @@ class Player:
         self.bullet_interval = 10
         self.update_rect()  # Initialize the rect
         self.power_up_level = 0
+        self.bombs = 3
+        self.lives = 10
 
     def update_rect(self):
         self.width = self.image.get_width()
@@ -29,13 +30,15 @@ class Player:
         self.update_rect()
 
     def move(self, left, right, down, up):
+
+
         # Adjust movement limits based on the circular hitbox
         if left and self.x > 0:
             self.x -= self.speed
-        if right and self.x < 800:
-            self.x += self.speed
         if down and self.y < 600:
             self.y += self.speed
+        if right and self.x < 800:
+            self.x += self.speed
         if up and self.y > 0:
             self.y -= self.speed
 
@@ -48,3 +51,4 @@ class Player:
         self.x = self.start_x
         self.y = self.start_y
         self.update_rect()  # Update rect after resetting position
+
