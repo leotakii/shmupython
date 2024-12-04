@@ -4,9 +4,9 @@ class Bullet:
     def __init__(self, x, y, image):
         self.original_image = image
         self.x = x
-        self.y = y
+        self.y = y-30
         self.image = pygame.transform.scale(self.original_image, (self.original_image.get_width() / 2, self.original_image.get_height() / 2))
-        self.speed = 7
+        self.speed = 14
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
